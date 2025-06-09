@@ -61,33 +61,13 @@ model Category {
   active    Boolean   @default(true)
 }
 
-model Manufacturer {
-  id          BigInt  @id @default(autoincrement())
-  name        String  @unique
-  description String?
-  country     String?
-  website     String?
-  logoUrl     String?
-
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
-
-  products Product[] // 1-n relation
-}
-
 model Product {
-  id             BigInt  @id @default(autoincrement())
-  name           String
-  description    String?
-  price          Float
-  stock          Int
-  categoryId     BigInt
-  manufacturerId BigInt
+  id          BigInt  @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int
+  categoryId  BigInt
 
   createdAt DateTime  @default(now())
   createdBy Int?
@@ -98,7 +78,6 @@ model Product {
   active    Boolean   @default(true)
 
   category      Category       @relation(fields: [categoryId], references: [id])
-  manufacturer  Manufacturer   @relation(fields: [manufacturerId], references: [id])
   productImages ProductImage[]
   reviews       Review[]
   cartItems     CartItem[]
@@ -152,6 +131,7 @@ model Order {
   deletedAt DateTime?
   deletedBy Int?
   active    Boolean   @default(true)
+  Payment   Payment?
 }
 
 model OrderItem {
@@ -170,6 +150,21 @@ model OrderItem {
   deletedAt DateTime?
   deletedBy Int?
   active    Boolean   @default(true)
+}
+
+model Payment {
+  id      BigInt @id @default(autoincrement())
+  orderId BigInt @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  method        String // 'vnpay', 'momo', 'cod', ...
+  status        String // 'pending', 'success', 'failed', ...
+  transactionId String? // Mã giao dịch từ bên thứ 3 (ví dụ: VNPay)
+  amount        Float
+  paymentTime   DateTime? // thời gian thanh toán thực tế
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Review {

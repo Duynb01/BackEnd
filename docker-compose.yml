@@ -4,7 +4,7 @@ services:
     image: node:22.16.0
     working_dir: /app/api
     env_file:
-      - /api/.env
+      - ./api/.env
     volumes:
       - "./api:/app/api"
     ports:
@@ -13,11 +13,9 @@ services:
   db:
     container_name: web-db
     image: postgres:17.0
-    env_file:
-      - /api/.env
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${PASSWORD}
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=default
     ports:
       - "5000:5432"
