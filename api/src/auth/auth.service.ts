@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -48,7 +48,7 @@ export class AuthService {
         include: { role: true },
       });
       if (!user || !(await bcrypt.compare(dto.password, user.password))) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Tài khoản hoặc mật khẩu không chính xác!');
       }
     const payload = {
       sub: user.id.toString(),
@@ -58,7 +58,6 @@ export class AuthService {
     };
       const token = await this.jwtService.signAsync(payload);
       return {
-        message: 'Đăng nhập thành công',
         access_token: token,
         user: {
           id: payload.sub,

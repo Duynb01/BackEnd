@@ -1,18 +1,22 @@
 services:
   api:
     container_name: web-api
-    image: node:22.16.0
-    working_dir: /app/api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     env_file:
       - ./api/.env
     volumes:
-      - "./api:/app/api"
+      - ./api:/app
+      - /app/node_modules
     ports:
       - "4000:3000"
-    command: ["npm", "run", "start:dev"]
+    depends_on:
+      - db
+
   db:
     container_name: web-db
-    image: postgres:17.0
+    image: postgres:17
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -20,7 +24,7 @@ services:
     ports:
       - "5000:5432"
     volumes:
-      - "./db:/var/lib/postgresql/data"
+      - './db:/var/lib/postgresql/data'
 volumes:
   db:
     driver: local

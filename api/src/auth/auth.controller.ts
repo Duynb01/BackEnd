@@ -1,26 +1,26 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
+import { Controller, Post, Body, Res, Get, UseGuards, Req } from '@nestjs/common';
 import {Response} from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res() res: Response) {
+  async login(@Body() dto: LoginDto, @Res({passthrough: true}) res: Response) {
     const result = await this.authService.login(dto)
     res.cookie('access_token', result.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000, // 1 ngày
+      maxAge: 60 * 60 * 1000, // 1 ngày: 24 * 60 * 60 * 1000
     });
     return res.json({
-      message: result.message,
-      access_token: result.access_token,
-      token_type: 'Bearer',
+      status: 'success',
+      message: 'Đăng nhập thành công',
       user: result.user,
     });
   }
@@ -31,6 +31,16 @@ export class AuthController {
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token'); // xóa cookie chứa JWT
-    return { message: 'Đăng xuất thành công' };
+    return {
+      status:'success',
+      message: 'Đăng xuất thành công' };
+  }
+  @Get('reload')
+  @UseGuards(JwtAuthGuard)
+  getProfile(@Req() req ){
+    return {
+        status:'success',
+        name: req.user.name,
+        email: req.user.email};
   }
 }
