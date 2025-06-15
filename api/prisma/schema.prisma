@@ -23,6 +23,7 @@ model User {
   orders    Order[]
   cartItems CartItem[]
   reviews   Review[]
+  vouchers  Voucher[]
 
   createdAt DateTime  @default(now())
   createdBy Int?
@@ -31,6 +32,30 @@ model User {
   deletedAt DateTime?
   deletedBy Int?
   active    Boolean   @default(true)
+}
+
+model Voucher {
+  id         BigInt       @id @default(autoincrement())
+  code       String       @unique
+  discount   Float
+  type       DiscountType
+  expiryDate DateTime
+
+  userId BigInt
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  createdBy Int?
+  updatedAt DateTime  @updatedAt
+  updatedBy Int?
+  deletedAt DateTime?
+  deletedBy Int?
+  active    Boolean   @default(true)
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
 }
 
 model Role {
@@ -69,6 +94,12 @@ model Product {
   stock       Int
   categoryId  BigInt
 
+  category      Category       @relation(fields: [categoryId], references: [id])
+  productImages ProductImage[]
+  reviews       Review[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
   createdAt DateTime  @default(now())
   createdBy Int?
   updatedAt DateTime  @updatedAt
@@ -76,12 +107,6 @@ model Product {
   deletedAt DateTime?
   deletedBy Int?
   active    Boolean   @default(true)
-
-  category      Category       @relation(fields: [categoryId], references: [id])
-  productImages ProductImage[]
-  reviews       Review[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
 }
 
 model ProductImage {
