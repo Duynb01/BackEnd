@@ -8,7 +8,6 @@ services:
       - ./api/.env
     volumes:
       - ./api:/app
-      - /app/node_modules
     ports:
       - "4000:3000"
     depends_on:

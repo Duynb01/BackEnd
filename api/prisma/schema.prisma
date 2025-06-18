@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,43 +8,36 @@ datasource db {
 }
 
 model User {
-  id        BigInt     @id @default(autoincrement())
-  name      String
-  email     String     @unique
-  password  String
-  role      Role       @relation(fields: [roleId], references: [id])
-  roleId    Int
-  orders    Order[]
-  cartItems CartItem[]
-  reviews   Review[]
-  vouchers  Voucher[]
+  id       String @id @default(uuid()) @db.Uuid
+  name     String
+  email    String @unique
+  password String
+  roleId   Int
 
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  cartItems CartItem[]
+  orders    Order[]
+  reviews   Review[]
+  role      Role       @relation(fields: [roleId], references: [id])
+  vouchers  Voucher[]
 }
 
 model Voucher {
-  id         BigInt       @id @default(autoincrement())
+  id         String       @id @default(uuid()) @db.Uuid
   code       String       @unique
   discount   Float
   type       DiscountType
   expiryDate DateTime
+  userId     String       @db.Uuid
 
-  userId BigInt
-  user   User   @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
 
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
+  user User @relation(fields: [userId], references: [id])
 }
 
 enum DiscountType {
@@ -59,153 +46,127 @@ enum DiscountType {
 }
 
 model Role {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  users User[]
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  users User[]
 }
 
 model Category {
-  id       BigInt    @id @default(autoincrement())
-  name     String
-  products Product[]
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+  sort Int    @default(autoincrement())
 
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  products Product[]
 }
 
 model Product {
-  id          BigInt  @id @default(autoincrement())
+  id          String  @id @default(uuid()) @db.Uuid
   name        String
   description String?
   price       Float
   stock       Int
-  categoryId  BigInt
-
-  category      Category       @relation(fields: [categoryId], references: [id])
-  productImages ProductImage[]
-  reviews       Review[]
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
-
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
-}
-
-model ProductImage {
-  id        BigInt  @id @default(autoincrement())
-  url       String
-  product   Product @relation(fields: [productId], references: [id])
-  productId BigInt
-
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
-}
-
-model CartItem {
-  id        BigInt  @id @default(autoincrement())
-  quantity  Int
-  user      User    @relation(fields: [userId], references: [id])
-  userId    BigInt
-  product   Product @relation(fields: [productId], references: [id])
-  productId BigInt
-
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
-}
-
-model Order {
-  id     BigInt      @id @default(autoincrement())
-  user   User        @relation(fields: [userId], references: [id])
-  userId BigInt
-  status String
-  total  Float
-  items  OrderItem[]
-
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
-  Payment   Payment?
-}
-
-model OrderItem {
-  id        BigInt  @id @default(autoincrement())
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   BigInt
-  product   Product @relation(fields: [productId], references: [id])
-  productId BigInt
-  quantity  Int
-  price     Float
-
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
-}
-
-model Payment {
-  id      BigInt @id @default(autoincrement())
-  orderId BigInt @unique
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  method        String // 'vnpay', 'momo', 'cod', ...
-  status        String // 'pending', 'success', 'failed', ...
-  transactionId String? // Mã giao dịch từ bên thứ 3 (ví dụ: VNPay)
-  amount        Float
-  paymentTime   DateTime? // thời gian thanh toán thực tế
+  categoryId  String  @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  category      Category       @relation(fields: [categoryId], references: [id])
+  productImages ProductImage[]
+  reviews       Review[]
+}
+
+model ProductImage {
+  id        String @id @default(uuid()) @db.Uuid
+  url       String
+  productId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model CartItem {
+  id        String @id @default(uuid()) @db.Uuid
+  quantity  Int
+  userId    String @db.Uuid
+  productId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id     String @id @default(uuid()) @db.Uuid
+  status String
+  total  Float
+  userId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User        @relation(fields: [userId], references: [id])
+  items   OrderItem[]
+  Payment Payment?
+}
+
+model OrderItem {
+  id        String @id @default(uuid()) @db.Uuid
+  quantity  Int
+  price     Float
+  orderId   String @db.Uuid
+  productId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id            String    @id @default(uuid()) @db.Uuid
+  method        String
+  status        String
+  transactionId String?
+  amount        Float
+  paymentTime   DateTime?
+  orderId       String    @unique @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
 }
 
 model Review {
-  id        BigInt  @id @default(autoincrement())
+  id        String @id @default(uuid()) @db.Uuid
   content   String
   rating    Int
-  user      User    @relation(fields: [userId], references: [id])
-  userId    BigInt
-  product   Product @relation(fields: [productId], references: [id])
-  productId BigInt
+  userId    String @db.Uuid
+  productId String @db.Uuid
 
-  createdAt DateTime  @default(now())
-  createdBy Int?
-  updatedAt DateTime  @updatedAt
-  updatedBy Int?
-  deletedAt DateTime?
-  deletedBy Int?
-  active    Boolean   @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 }

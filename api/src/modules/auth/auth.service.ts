@@ -26,7 +26,7 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         role: {
-          connect: { name: 'USER' },
+          connect: { id: 2 },
         },
       },
       include: {role: true},
@@ -51,7 +51,7 @@ export class AuthService {
       throw new UnauthorizedException('Tài khoản hoặc mật khẩu không chính xác!');
     }
     const payload = {
-      sub: user.id.toString(),
+      sub: user.id,
       email: user.email,
       name: user.name,
       role: user.role?.name || 'USER',

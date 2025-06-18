@@ -7,14 +7,39 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class CartsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findUserCart(userId: number) {
-    return this.prisma.cartItem.findMany({
-      where: {userId},
-      include: {product: true}
-    });
+  async findUserCart(userId: string) {
+    const data = await this.prisma.cartItem.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        quantity: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            stock: true,
+            productImages: {
+              select: { url: true },
+              take: 1
+            }
+          }
+        }
+      }
+
+    })
+    return data.map((item)=> ({
+      cartItemId: item.id,
+      productId: item.product.id,
+      name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+      stock: item.product.stock,
+      url: item.product.productImages[0]?.url || null,
+    }))
   }
 
-  async addToCart(userId: number, addToCartDto: AddCartDto){
+  async addToCart(userId: string, addToCartDto: AddCartDto){
     const findItem = await this.prisma.cartItem.findFirst({
       where: {userId, productId: addToCartDto.productId}
     })
@@ -34,12 +59,12 @@ export class CartsService {
       }
     });
   }
-  async updateQuantity(userId: number, cartItemId: number, updateCartDto: UpdateCartDto) {
+  async updateQuantity(userId: string, cartItemId: string, updateCartDto: UpdateCartDto) {
     const item = await this.prisma.cartItem.findUnique({
       where: { id: cartItemId },
     });
 
-    if (!item || item.userId !== BigInt(userId)) {
+    if (!item || item.userId !== userId) {
       throw new NotFoundException('Không tìm thấy sản phẩm trong giỏ hàng');
     }
 
@@ -49,18 +74,18 @@ export class CartsService {
     });
   }
 
-  async removeFromCart(userId: number, cartItemId: number) {
+  async removeFromCart(userId: string, cartItemId: string) {
     const item = await this.prisma.cartItem.findUnique({
       where: { id: cartItemId },
     });
 
-    if (!item || item.userId !== BigInt(userId)) {
+    if (!item || item.userId !== userId) {
       throw new NotFoundException('Không tìm thấy sản phẩm trong giỏ hàng');
     }
 
     return this.prisma.cartItem.delete({ where: { id: cartItemId } });
   }
-  async clearCart(userId: bigint) {
+  async clearCart(userId: string) {
     return this.prisma.cartItem.deleteMany({
       where: { userId },
     });

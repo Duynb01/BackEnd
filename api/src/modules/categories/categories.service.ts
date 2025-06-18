@@ -12,21 +12,30 @@ export class CategoriesService {
   }
 
   findAll() {
-    return this.prisma.category.findMany({ where: { active: true } });
+    return this.prisma.category.findMany({
+      select: {name: true},
+      where: { active: true },
+    });
   }
 
-  findOne(id: number) {
-    return this.prisma.category.findUnique({ where: { id } });
+  findOne(id: string) {
+    return this.prisma.category.findUnique({
+      select: {
+        id: true,
+        name: true
+      },
+      where: { id }
+    });
   }
 
-  async update(id: number, dto: UpdateCategoryDto) {
+  async update(id: string, dto: UpdateCategoryDto) {
     const exists = await this.prisma.category.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('Không tìm thấy danh mục');
 
     return this.prisma.category.update({ where: { id }, data: dto });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.prisma.category.update({
       where: { id },
       data: { active: false },
