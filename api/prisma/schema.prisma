@@ -8,10 +8,12 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid()) @db.Uuid
+  id       String  @id @default(uuid()) @db.Uuid
   name     String
-  email    String @unique
+  email    String  @unique
   password String
+  phone    String?
+  address  String?
   roleId   Int
 
   createdAt DateTime @default(now())
@@ -21,8 +23,8 @@ model User {
   cartItems CartItem[]
   orders    Order[]
   reviews   Review[]
-  role      Role       @relation(fields: [roleId], references: [id])
-  vouchers  Voucher[]
+  role      Role          @relation(fields: [roleId], references: [id])
+  vouchers  VoucherUser[]
 }
 
 model Voucher {
@@ -31,13 +33,24 @@ model Voucher {
   discount   Float
   type       DiscountType
   expiryDate DateTime
-  userId     String       @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   active    Boolean  @default(true)
 
-  user User @relation(fields: [userId], references: [id])
+  users VoucherUser[]
+}
+
+model VoucherUser {
+  id        String @id @default(uuid()) @db.Uuid
+  userId    String @db.Uuid
+  voucherId String @db.Uuid
+
+  used   Boolean   @default(false)
+  usedAt DateTime?
+
+  user    User    @relation(fields: [userId], references: [id])
+  voucher Voucher @relation(fields: [voucherId], references: [id])
 }
 
 enum DiscountType {
@@ -59,6 +72,7 @@ model Role {
 model Category {
   id   String @id @default(uuid()) @db.Uuid
   name String
+  slug String @unique
   sort Int    @default(autoincrement())
 
   createdAt DateTime @default(now())

@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../../common/roles.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/roles.guard';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -38,15 +39,21 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
-  @Get('me')
+  @Get('me/profile')
   @UseGuards(JwtAuthGuard)
   getProfile(@Request() request){
     return this.usersService.findOne(request.user.id)
   }
 
-  @Patch('me')
+  @Patch('me/profile')
   @UseGuards(JwtAuthGuard)
   updateProfile(@Request() request, @Body() updateUserDto: UpdateUserDto){
     return this.usersService.update(request.user.id, updateUserDto)
+  }
+
+  @Patch('me/change-password')
+  @UseGuards(JwtAuthGuard)
+  updatePassword(@Request() request, @Body() updatePasswordDto: UpdatePasswordDto){
+    return this.usersService.updatePassword(request.user.id, updatePasswordDto)
   }
 }

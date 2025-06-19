@@ -8,6 +8,9 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(8)
-  password?: string;
+  phone?: string
+
+  @IsOptional()
+  @IsString()
+  address?: string
 }
