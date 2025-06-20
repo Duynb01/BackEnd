@@ -91,46 +91,4 @@ export class ProductsService {
       data: { active: false },
     });
   }
-
-
-  async findWithCategory(slug: string) {
-    const category = await this.prisma.category.findUnique({
-      where:{
-        slug: slug
-      },
-    })
-    const products = await this.prisma.product.findMany({
-      where: {
-        categoryId: category.id,
-        active: true,
-      },
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        stock: true,
-        category: {
-          select: {
-            name: true
-          }
-        },
-        productImages: {
-          select: {
-            url: true
-          },
-          take: 1,
-        }
-      },
-    });
-    return products.map((product)=>{
-      return {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        stock: product.stock,
-        category: product.category?.name || null,
-        url: product.productImages[0]?.url || null
-      }
-    })
-  }
 }

@@ -13,7 +13,10 @@ export class CategoriesService {
 
   findAll() {
     return this.prisma.category.findMany({
-      select: {name: true},
+      select: {
+        name: true,
+        slug: true
+      },
       where: { active: true },
     });
   }

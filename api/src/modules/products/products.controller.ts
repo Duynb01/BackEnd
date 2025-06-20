@@ -40,9 +40,4 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
   }
-
-  @Get('category/:slug')
-  findWithCategory(@Param('slug') name: string){
-    return this.productsService.findWithCategory(slug);
-  }
 }

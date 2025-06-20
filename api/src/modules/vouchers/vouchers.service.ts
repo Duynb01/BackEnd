@@ -1,26 +1,123 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
-import { UpdateVoucherDto } from './dto/update-voucher.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class VouchersService {
-  create(createVoucherDto: CreateVoucherDto) {
-    return 'This action adds a new voucher';
+  constructor(private readonly prisma: PrismaService) {
+  }
+
+  async create(userId: string, createVoucherDTO: CreateVoucherDto){
+    return this.prisma.voucher.create({
+      data: {
+        name: createVoucherDTO.name,
+        code: createVoucherDTO.code,
+        discount: createVoucherDTO.discount,
+        type: createVoucherDTO.type,
+        expiryDate: new Date(createVoucherDTO.expiryDate),
+        users: {
+          connect:{
+            id: userId,
+          },
+        },
+      }
+    })
   }
 
   findAll() {
-    return `This action returns all vouchers`;
+    return this.prisma.voucher.findMany({
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        discount: true,
+        type: true,
+        expiryDate: true
+      },
+      orderBy:{
+        expiryDate: 'asc'
+      },
+      where: {
+        active: true
+      }
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} voucher`;
+  async findByUser(userId: string){
+    const voucherUsers = await this.prisma.voucherUser.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        voucher:{
+          select:{
+            id: true,
+            name: true,
+            code: true,
+            discount: true,
+            type: true,
+            expiryDate: true,
+            active: true,
+          }
+        }
+      },
+      orderBy:{
+        voucher:{
+          expiryDate: 'asc'
+        }
+      }
+    })
+    return voucherUsers.map((v) => v.voucher)
   }
 
-  update(id: number, updateVoucherDto: UpdateVoucherDto) {
-    return `This action updates a #${id} voucher`;
+  async claimVoucher(userId:string, voucherId: string){
+    const voucher = await this.prisma.voucher.findUnique({
+      where:{
+        id: voucherId
+      }
+    })
+    if (!voucher) throw new NotFoundException("Voucher không tồn tại")
+    if(new Date(voucher.expiryDate) < new Date()){
+      throw new BadRequestException('Voucher đã hết hạn')
+    }
+    const alreadyClaimed = await this.prisma.voucherUser.findFirst({
+      where: {
+        userId,
+        voucherId
+      }
+    })
+    if(alreadyClaimed) throw new BadRequestException("Bạn đã lưu voucher này rồi")
+    return this.prisma.voucherUser.create({
+      data:{
+        userId,
+        voucherId
+      },
+      include:{
+        voucher:{
+          select:{
+            id: true,
+            name: true,
+            code: true,
+            discount: true,
+            type: true,
+            expiryDate: true
+          }
+        }
+      }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} voucher`;
+  async remove(id: string){
+    const voucher = await this.prisma.voucher.findUnique({
+      where:{
+        id
+      }
+    })
+    if (!voucher) throw new NotFoundException('Voucher không tồn tại');
+    return this.prisma.voucher.update({
+      where: { id },
+      data: {active: false}
+    });
   }
+
 }
