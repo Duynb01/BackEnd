@@ -22,6 +22,14 @@ export class VouchersController {
     return this.vouchersService.findByUser(request.user.id)
   }
 
+  @Get(':code')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('code') code: string) {
+    return this.vouchersService.findValidByCode(code)
+  }
+
+
+
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('Admin')

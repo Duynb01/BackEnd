@@ -43,6 +43,20 @@ export class VouchersService {
     })
   }
 
+  async findValidByCode(code: string) {
+    const voucher = await this.prisma.voucher.findFirst({
+      where: {
+        code,
+        active: true,
+        expiryDate:{
+          gt: new Date()
+        }
+      }
+    })
+    if (!voucher) throw new BadRequestException('Voucher không tồn tại hoặc đã hết hạn!');
+    return voucher;
+  }
+
   async findByUser(userId: string){
     const voucherUsers = await this.prisma.voucherUser.findMany({
       where: {

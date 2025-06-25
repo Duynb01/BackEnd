@@ -10,9 +10,10 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { VouchersModule } from './modules/vouchers/vouchers.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, ProductsModule, CartsModule, UsersModule, CategoriesModule, OrdersModule, ReviewsModule, VouchersModule],
+  imports: [AuthModule, PrismaModule, ProductsModule, CartsModule, UsersModule, CategoriesModule, OrdersModule, ReviewsModule, VouchersModule, PaymentsModule],
   controllers: [AppController],
   providers: [AppService],
 })
