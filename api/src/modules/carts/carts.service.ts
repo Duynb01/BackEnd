@@ -30,7 +30,7 @@ export class CartsService {
     })
     return data.map((item)=> ({
       cartItemId: item.id,
-      productId: item.product.id,
+      id: item.product.id,
       name: item.product.name,
       price: item.product.price,
       quantity: item.quantity,
@@ -89,6 +89,16 @@ export class CartsService {
     return this.prisma.cartItem.deleteMany({
       where: { userId },
     });
+  }
+  async getProductId(cartItemId: string){
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: {id: cartItemId},
+      select:{productId: true}
+    })
+    if (!cartItem) {
+      throw new NotFoundException('Không tồn tại');
+    }
+    return cartItem.productId;
   }
 
 

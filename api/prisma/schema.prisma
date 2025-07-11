@@ -33,6 +33,7 @@ model Voucher {
   code       String       @unique
   discount   Float
   type       DiscountType
+  startDate   DateTime @default(now())
   expiryDate DateTime
 
   createdAt DateTime @default(now())
@@ -130,6 +131,7 @@ model CartItem {
 
 model Order {
   id     String @id @default(uuid()) @db.Uuid
+  code          String    @unique
   status String
   total  Float
   userId String @db.Uuid
@@ -158,6 +160,7 @@ model OrderItem {
 
 model Payment {
   id            String    @id @default(uuid()) @db.Uuid
+  code          String    @unique
   method        String
   status        String
   transactionId String?

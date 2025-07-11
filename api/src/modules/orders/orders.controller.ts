@@ -36,8 +36,19 @@ export class OrdersController {
   @Patch(':id')
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.updateStatus(id, updateOrderDto);
+  async update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    const order = await this.ordersService.updateStatus(id, updateOrderDto);
+    return{
+      message: 'Successful',
+      data:{
+        id: order.id,
+        code: order.code,
+        total: order.total,
+        status: order.status,
+        userId: order.userId,
+        createdAt: order.createdAt
+      }
+    }
   }
 
 }

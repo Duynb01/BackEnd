@@ -21,13 +21,14 @@ export class CategoriesService {
     });
   }
 
-  findOne(id: string) {
+  findOne(slug: string) {
     return this.prisma.category.findUnique({
       select: {
         id: true,
-        name: true
+        name: true,
+        slug: true
       },
-      where: { id }
+      where: { slug }
     });
   }
 

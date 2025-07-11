@@ -1,4 +1,11 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateVoucherDto } from './create-voucher.dto';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
-export class UpdateVoucherDto extends PartialType(CreateVoucherDto) {}
+export class UpdateVoucherDto {
+  @IsOptional()
+  @IsString()
+  expiryDate?: string
+
+  @IsOptional()
+  @IsBoolean()
+  active? : boolean
+}

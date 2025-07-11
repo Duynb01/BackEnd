@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { generatePaymentCode } from '../../utils/generate-code';
 
 @Injectable()
 export class PaymentsService {
@@ -12,9 +13,11 @@ export class PaymentsService {
         id: createPaymentDto.orderId
       }
     })
+    const code = generatePaymentCode();
     if(!order) throw new NotFoundException('Không tìm thấy đơn hàng')
     return this.prisma.payment.create({
       data: {
+        code,
         orderId: createPaymentDto.orderId,
         method: createPaymentDto.method,
         amount: createPaymentDto.amount,

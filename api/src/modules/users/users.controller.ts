@@ -6,6 +6,7 @@ import { Roles } from '../../common/roles.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/roles.guard';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { UpdateStatusRoleDto } from './dto/update-status-role.dto';
 
 @Controller('users')
 export class UsersController {
@@ -37,6 +38,13 @@ export class UsersController {
   @Roles('ADMIN')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
+  }
+
+  @Patch('status/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  updateStatus(@Param('id') id: string, @Body() updateDTO: UpdateStatusRoleDto) {
+    return this.usersService.status(id, updateDTO);
   }
 
   @Get('me/profile')

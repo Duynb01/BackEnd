@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/roles.guard';
 import { Roles } from '../../common/roles.decorator';
 import * as timers from 'node:timers';
+import { UpdateStatusRoleDto } from '../users/dto/update-status-role.dto';
 
 @Controller('vouchers')
 export class VouchersController {
@@ -32,9 +33,19 @@ export class VouchersController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Admin')
-  create(@Request() request, @Body() dto: CreateVoucherDto){
-    return this.vouchersService.create(request.user.id, dto)
+  @Roles('ADMIN')
+  async create(@Body() dto: CreateVoucherDto){
+    const voucher = await this.vouchersService.create(dto)
+    return {
+      message: 'Tạo voucher thành công!',
+      data: {
+        id: voucher.id,
+        code: voucher.code,
+        discount: voucher.discount,
+        type: voucher.type,
+        expiryDate: voucher.expiryDate,
+      },
+    }
   }
 
   @Post('claim/:voucherId')
@@ -43,10 +54,18 @@ export class VouchersController {
     return this.vouchersService.claimVoucher(request.user.id, voucherId)
   }
 
-  @Patch(':id')
+  @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('Admin')
+  @Roles('ADMIN')
   remove(@Param('id') id: string){
     return this.vouchersService.remove(id)
   }
+
+  @Patch('status/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  updateStatus(@Param('id') id: string, @Body() updateDTO: UpdateVoucherDto) {
+    return this.vouchersService.status(id, updateDTO);
+  }
 }
+

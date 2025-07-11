@@ -19,5 +19,8 @@ export class CreateVoucherDto {
   type: DiscountType;
 
   @IsDateString()
+  startDate: string
+
+  @IsDateString()
   expiryDate: string
 }

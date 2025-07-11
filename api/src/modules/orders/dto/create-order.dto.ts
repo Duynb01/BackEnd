@@ -10,8 +10,18 @@ import {
 import { Type } from 'class-transformer';
 import {PaymentMethod} from '../../payments/dto/create-payment.dto';
 
+enum OrderStatus{
+  PROCESSING = 'processing',
+  SHIPPED = 'shipped',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
+}
 
-class OrderItemDto{
+export class OrderItemDto{
+  @IsOptional()
+  @IsString()
+  cartItemId?: string;
+
   @IsString()
   @IsNotEmpty()
   productId: string;
@@ -23,7 +33,6 @@ class OrderItemDto{
   @IsNumber()
   @Min(0)
   price: number;
-
 }
 
 class ShippingInfoDto{

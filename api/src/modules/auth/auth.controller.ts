@@ -16,7 +16,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 1000, // 1 ngày: 24 * 60 * 60 * 1000
+      maxAge: 12 * 60 * 60 * 1000, // 1 ngày: 24 * 60 * 60 * 1000
     });
     return res.json({
       status: 'success',
@@ -24,10 +24,12 @@ export class AuthController {
       user: result.user,
     });
   }
+
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
+
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token'); // xóa cookie chứa JWT
@@ -35,12 +37,10 @@ export class AuthController {
       status:'success',
       message: 'Đăng xuất thành công' };
   }
+
   @Get('reload')
   @UseGuards(JwtAuthGuard)
   checkLogin(@Request() request ){
-    return {
-      status:'success',
-      name: request.user.name,
-      email: request.user.email};
+    return this.authService.checkLogin(request.user.id)
   }
 }

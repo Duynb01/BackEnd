@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MinLength } from 'class-validator';
 
 
 export class UpdateUserDto {
@@ -13,4 +13,8 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   address?: string
+
+  @IsOptional()
+  @IsBoolean()
+  active? : boolean
 }

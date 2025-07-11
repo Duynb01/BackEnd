@@ -21,10 +21,19 @@ export class JwtStrategy extends PassportStrategy(Strategy){
   async validate(payload){
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
+      include: { role: true },
     });
     if (!user) {
       throw new UnauthorizedException('Không tìm thấy người dùng.');
     }
-    return user;
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || "",
+      address: user.address || "",
+      role: user.role.name,
+      active: user.active
+    };
   }
 }

@@ -1,27 +1,31 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UpdateVoucherDto } from './dto/update-voucher.dto';
 
 @Injectable()
 export class VouchersService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(userId: string, createVoucherDTO: CreateVoucherDto){
-    return this.prisma.voucher.create({
-      data: {
-        name: createVoucherDTO.name,
-        code: createVoucherDTO.code,
-        discount: createVoucherDTO.discount,
-        type: createVoucherDTO.type,
-        expiryDate: new Date(createVoucherDTO.expiryDate),
-        users: {
-          connect:{
-            id: userId,
-          },
+  async create(createVoucherDTO: CreateVoucherDto){
+    try {
+      return await this.prisma.voucher.create({
+        data: {
+          name: createVoucherDTO.name,
+          code: createVoucherDTO.code,
+          discount: createVoucherDTO.discount,
+          type: createVoucherDTO.type,
+          startDate: new Date(createVoucherDTO.startDate),
+          expiryDate: new Date(createVoucherDTO.expiryDate),
         },
+      });
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Mã voucher đã tồn tại!');
       }
-    })
+      throw error
+    }
   }
 
   findAll() {
@@ -32,13 +36,12 @@ export class VouchersService {
         code: true,
         discount: true,
         type: true,
-        expiryDate: true
+        expiryDate: true,
+        startDate: true,
+        active: true
       },
       orderBy:{
         expiryDate: 'asc'
-      },
-      where: {
-        active: true
       }
     })
   }
@@ -128,10 +131,25 @@ export class VouchersService {
       }
     })
     if (!voucher) throw new NotFoundException('Voucher không tồn tại');
-    return this.prisma.voucher.update({
+    return this.prisma.voucher.delete({
       where: { id },
-      data: {active: false}
     });
+  }
+  async status (id: string, updateDto: UpdateVoucherDto){
+    const voucher = await this.prisma.voucher.findUnique({
+      where: {id},
+    });
+    if(!voucher) throw new NotFoundException("Voucher dùng không tồn tại");
+    await this.prisma.voucher.update({
+      where: {id},
+      data: {
+        ...(typeof updateDto.active === 'boolean' && { active: updateDto.active }),
+        ...(typeof updateDto.expiryDate === 'string' && { expiryDate: new Date(updateDto.expiryDate) }),
+      }
+    })
+    return {
+      message: 'Cập nhật thành công'
+    }
   }
 
 }
