@@ -28,6 +28,14 @@ export class PaymentsService {
     })
   }
 
+  async getAll(status?: string){
+    return this.prisma.payment.findMany({
+      where: status ? {status} : {},
+      orderBy: {createdAt: 'desc'},
+      include: {order: true}
+    })
+  }
+
   async updateStatus(orderId: string, status: string, transactionId?: string){
     const payment = await this.prisma.payment.findUnique({
       where: {orderId}
@@ -43,45 +51,6 @@ export class PaymentsService {
     })
   }
 
-  async getByOrderId(orderId:string){
-    return this.prisma.payment.findUnique({
-      where: {orderId}
-    })
-  }
-
-  async getAll(status?: string){
-    return this.prisma.payment.findMany({
-      where: status ? {status} : {},
-      orderBy: {createdAt: 'desc'},
-      include: {order: true}
-    })
-  }
-
-  async getByUser(userId: string, status?: string){
-    return this.prisma.payment.findMany({
-      where: {
-        order: { userId },
-        ...(status ? { status } : {}),
-      },
-      include: { order: true },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
 
 
-  // findAll() {
-  //   return `This action returns all payments`;
-  // }
-  //
-  // findOne(id: number) {
-  //   return `This action returns a #${id} payment`;
-  // }
-  //
-  // update(id: number, updatePaymentDto: UpdatePaymentDto) {
-  //   return `This action updates a #${id} payment`;
-  // }
-  //
-  // remove(id: number) {
-  //   return `This action removes a #${id} payment`;
-  // }
 }

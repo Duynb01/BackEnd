@@ -12,25 +12,6 @@ import { UpdateStatusRoleDto } from '../users/dto/update-status-role.dto';
 export class VouchersController {
   constructor(private readonly vouchersService: VouchersService) {}
 
-  @Get()
-  findAll() {
-    return this.vouchersService.findAll();
-  }
-
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  getMyVouchers(@Request() request){
-    return this.vouchersService.findByUser(request.user.id)
-  }
-
-  @Get(':code')
-  @UseGuards(JwtAuthGuard)
-  async findOne(@Param('code') code: string) {
-    return this.vouchersService.findValidByCode(code)
-  }
-
-
-
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -47,11 +28,34 @@ export class VouchersController {
       },
     }
   }
-
-  @Post('claim/:voucherId')
+  @Post(':id/claim')
   @UseGuards(JwtAuthGuard)
-  claimVoucher(@Request() request, @Param('voucherId') voucherId: string){
+  claimVoucher(@Request() request, @Param('id') voucherId: string){
     return this.vouchersService.claimVoucher(request.user.id, voucherId)
+  }
+
+  @Get()
+  findAll() {
+    return this.vouchersService.findAll();
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  getMyVouchers(@Request() request){
+    return this.vouchersService.findByUser(request.user.id)
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: string) {
+    return this.vouchersService.findValidByCode(id)
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  updateStatus(@Param('id') id: string, @Body() updateDTO: UpdateVoucherDto) {
+    return this.vouchersService.status(id, updateDTO);
   }
 
   @Delete(':id')
@@ -59,13 +63,6 @@ export class VouchersController {
   @Roles('ADMIN')
   remove(@Param('id') id: string){
     return this.vouchersService.remove(id)
-  }
-
-  @Patch('status/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  updateStatus(@Param('id') id: string, @Body() updateDTO: UpdateVoucherDto) {
-    return this.vouchersService.status(id, updateDTO);
   }
 }
 

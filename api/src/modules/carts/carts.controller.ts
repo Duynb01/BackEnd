@@ -11,16 +11,14 @@ import { Roles } from '../../common/roles.decorator';
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
 
+  @Post()
+  addToCart(@Request() request, @Body() createCartDto: AddCartDto) {
+    return this.cartsService.addToCart(request.user.id, createCartDto);
+  }
   @Get()
   getMyCart(@Request() request) {
     return this.cartsService.findUserCart(request.user.id);
   }
-
-  @Post('add')
-  addToCart(@Request() request, @Body() createCartDto: AddCartDto) {
-    return this.cartsService.addToCart(request.user.id, createCartDto);
-  }
-
   @Patch(':id')
   updateQuantity(
     @Request() request,
@@ -29,14 +27,12 @@ export class CartsController {
   ) {
     return this.cartsService.updateQuantity(request.user.id, id, dto);
   }
-
+  @Delete()
+  clearCart(@Request() request){
+    return this.cartsService.clearCart(request.user.id)
+  }
   @Delete(':id')
   removeFromCart(@Request() request, @Param('id') id: string) {
     return this.cartsService.removeFromCart(request.user.id, id);
-  }
-
-  @Delete('clear')
-  clearCart(@Request() request){
-    return this.cartsService.clearCart(request.user.id)
   }
 }

@@ -1,10 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PrismaService } from '../../prisma/prisma.service';
-import { UpdatePasswordDto } from './dto/update-password.dto';
-import * as bcrypt from 'bcrypt'
 import { UpdateStatusRoleDto } from './dto/update-status-role.dto';
+import { PrismaService } from '../../prisma/prisma.service';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
@@ -69,33 +67,26 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
-      where: { id },
-      data: { ...updateUserDto },
-    });
-  }
-
-  async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
     const user = await this.prisma.user.findUnique({
       where: {id},
     });
     if(!user) throw new NotFoundException("Người dùng không tồn tại");
+    const data: any = {};
 
-    const isCheck = await bcrypt.compare(updatePasswordDto.oldPassword, user.password)
-    if(!isCheck) throw new BadRequestException("Mật khẩu hiện tại không đúng")
+    if(updateUserDto.infoDto){
+      if (updateUserDto.infoDto.name !== undefined) data.name = updateUserDto.infoDto.name;
+      if (updateUserDto.infoDto.phone !== undefined) data.phone = updateUserDto.infoDto.phone;
+      if (updateUserDto.infoDto.address !== undefined) data.address = updateUserDto.infoDto.address;
+    }
 
-    const hashedNewPassword = await bcrypt.hash(updatePasswordDto.newPassword, 10);
+    if (updateUserDto.passwordDto) {
+      const isCheck = await bcrypt.compare(updateUserDto.passwordDto.oldPassword, user.password);
+      if(!isCheck) throw new BadRequestException("Mật khẩu hiện tại không đúng");
+      data.password = await bcrypt.hash(updateUserDto.passwordDto.newPassword, 10);
+    }
 
-    await this.prisma.user.update({
-      where: {id},
-      data: {password: hashedNewPassword}
-    })
-
-    return {message: "Đổi mật khẩu thành công"};
-  }
-
-  async remove(id: string) {
-    return this.prisma.user.delete({ where: { id } });
+    await this.prisma.user.update({ where: { id }, data });
+    return { message: 'Cập nhật người dùng thành công' };
   }
 
   async status(id: string, updateDto: UpdateStatusRoleDto){
@@ -113,5 +104,9 @@ export class UsersService {
     return {
       message: 'Cập nhật thành công'
     }
+  }
+
+  async remove(id: string) {
+    return this.prisma.user.update({ where: { id }, data:{active: false} });
   }
 }

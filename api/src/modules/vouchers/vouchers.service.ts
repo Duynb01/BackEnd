@@ -46,10 +46,10 @@ export class VouchersService {
     })
   }
 
-  async findValidByCode(code: string) {
+  async findValidByCode(id: string) {
     const voucher = await this.prisma.voucher.findFirst({
       where: {
-        code,
+        id,
         active: true,
         expiryDate:{
           gt: new Date()

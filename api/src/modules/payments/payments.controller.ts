@@ -23,19 +23,6 @@ export class PaymentsController {
     return this.paymentsService.getAll(status);
   }
 
-  @Get(':orderId')
-  findByOrder(@Param('orderId') orderId: string) {
-    return this.paymentsService.getByOrderId(orderId);
-  }
-
-  @Get('user/:userId')
-  getUserPayments(
-    @Param('userId') userId: string,
-    @Query('status') status?: string,
-  ) {
-    return this.paymentsService.getByUser(userId, status);
-  }
-
   @Patch(':orderId')
   @Roles('ADMIN')
   @UseGuards(RolesGuard)

@@ -1,13 +1,14 @@
-import { Controller, Get, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateStatusRoleDto } from './dto/update-status-role.dto';
 import { Roles } from '../../common/roles.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/roles.guard';
-import { UpdatePasswordDto } from './dto/update-password.dto';
-import { UpdateStatusRoleDto } from './dto/update-status-role.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -15,53 +16,43 @@ export class UsersController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
+  @ApiOperation({ summary: 'Lấy danh sách tất cả người dùng (ADMIN)' })
+  @ApiResponse({ status: 200, description: 'Danh sách người dùng.' })
   findAll() {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Lấy thông tin người dùng hiện tại' })
+  @ApiResponse({ status: 200, description: 'Thông tin người dùng.' })
+  getProfile(@Request() request) {
+    return this.usersService.findOne(request.user.id);
   }
 
-  @Patch(':id')
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Cập nhật thông tin cá nhân' })
+  @ApiResponse({ status: 200, description: 'Cập nhật thành công.' })
+  updateProfile(@Request() request, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(request.user.id, updateUserDto);
+  }
+
+  @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @ApiOperation({ summary: 'Cập nhật trạng thái hoạt động và vai trò người dùng (ADMIN)' })
+  @ApiResponse({ status: 200, description: 'Cập nhật thành công.' })
+  updateStatus(@Param('id') id: string, @Body() updateDTO: UpdateStatusRoleDto) {
+    return this.usersService.status(id, updateDTO);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
+  @ApiOperation({ summary: 'Xóa người dùng (ADMIN)' })
+  @ApiResponse({ status: 200, description: 'Xóa thành công hoặc vô hiệu hóa.' })
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
-  }
-
-  @Patch('status/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  updateStatus(@Param('id') id: string, @Body() updateDTO: UpdateStatusRoleDto) {
-    return this.usersService.status(id, updateDTO);
-  }
-
-  @Get('me/profile')
-  @UseGuards(JwtAuthGuard)
-  getProfile(@Request() request){
-    return this.usersService.findOne(request.user.id)
-  }
-
-  @Patch('me/profile')
-  @UseGuards(JwtAuthGuard)
-  updateProfile(@Request() request, @Body() updateUserDto: UpdateUserDto){
-    return this.usersService.update(request.user.id, updateUserDto)
-  }
-
-  @Patch('me/change-password')
-  @UseGuards(JwtAuthGuard)
-  updatePassword(@Request() request, @Body() updatePasswordDto: UpdatePasswordDto){
-    return this.usersService.updatePassword(request.user.id, updatePasswordDto)
   }
 }

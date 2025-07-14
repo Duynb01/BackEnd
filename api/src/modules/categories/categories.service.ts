@@ -32,14 +32,14 @@ export class CategoriesService {
     });
   }
 
-  async update(id: string, dto: UpdateCategoryDto) {
+  async update(id: number, dto: UpdateCategoryDto) {
     const exists = await this.prisma.category.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('Không tìm thấy danh mục');
 
     return this.prisma.category.update({ where: { id }, data: dto });
   }
 
-  remove(id: string) {
+  remove(id: number) {
     return this.prisma.category.update({
       where: { id },
       data: { active: false },

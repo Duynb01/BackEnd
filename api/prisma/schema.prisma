@@ -72,10 +72,9 @@ model Role {
 }
 
 model Category {
-  id   String @id @default(uuid()) @db.Uuid
+  id   Int    @id @default(autoincrement())
   name String
   slug String @unique
-  sort Int    @default(autoincrement())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -90,7 +89,8 @@ model Product {
   description String?
   price       Float
   stock       Int
-  categoryId  String  @db.Uuid
+  categoryId  Int
+  connectId   Int     @default(autoincrement())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -106,13 +106,14 @@ model Product {
 model ProductImage {
   id        String @id @default(uuid()) @db.Uuid
   url       String
-  productId String @db.Uuid
+  productId String? @db.Uuid
+  connectId   Int     @default(autoincrement())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   active    Boolean  @default(true)
 
-  product Product @relation(fields: [productId], references: [id])
+  product Product? @relation(fields: [productId], references: [id])
 }
 
 model CartItem {
