@@ -5,8 +5,6 @@ import { UpdateVoucherDto } from './dto/update-voucher.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/roles.guard';
 import { Roles } from '../../common/roles.decorator';
-import * as timers from 'node:timers';
-import { UpdateStatusRoleDto } from '../users/dto/update-status-role.dto';
 
 @Controller('vouchers')
 export class VouchersController {
@@ -28,9 +26,10 @@ export class VouchersController {
       },
     }
   }
+
   @Post(':id/claim')
   @UseGuards(JwtAuthGuard)
-  claimVoucher(@Request() request, @Param('id') voucherId: string){
+  claimVoucher(@Request() request:any, @Param('id') voucherId: string){
     return this.vouchersService.claimVoucher(request.user.id, voucherId)
   }
 
@@ -41,14 +40,14 @@ export class VouchersController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  getMyVouchers(@Request() request){
+  getMyVouchers(@Request() request: any){
     return this.vouchersService.findByUser(request.user.id)
   }
 
-  @Get(':id')
+  @Get(':code')
   @UseGuards(JwtAuthGuard)
-  async findOne(@Param('id') id: string) {
-    return this.vouchersService.findValidByCode(id)
+  async findOne(@Param('code') code: string) {
+    return this.vouchersService.findValidByCode(code)
   }
 
   @Patch(':id')

@@ -80,6 +80,9 @@ export class UsersService {
     }
 
     if (updateUserDto.passwordDto) {
+      if (!user.password) {
+        throw new Error("User password not found");
+      }
       const isCheck = await bcrypt.compare(updateUserDto.passwordDto.oldPassword, user.password);
       if(!isCheck) throw new BadRequestException("Mật khẩu hiện tại không đúng");
       data.password = await bcrypt.hash(updateUserDto.passwordDto.newPassword, 10);

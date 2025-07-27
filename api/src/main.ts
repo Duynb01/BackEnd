@@ -10,11 +10,11 @@ async function bootstrap() {
     origin: 'http://localhost:3000',
     credentials: true,
   });
-  app.use(cookieParser())
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     transform: true
-  }))
+  }));
   const config = new DocumentBuilder()
     .setTitle('Furniture N\'s Store')
     .setDescription('Mô tả API')

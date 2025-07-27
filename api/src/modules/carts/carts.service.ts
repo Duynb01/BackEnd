@@ -90,16 +90,4 @@ export class CartsService {
       where: { userId },
     });
   }
-  async getProductId(cartItemId: string){
-    const cartItem = await this.prisma.cartItem.findUnique({
-      where: {id: cartItemId},
-      select:{productId: true}
-    })
-    if (!cartItem) {
-      throw new NotFoundException('Không tồn tại');
-    }
-    return cartItem.productId;
-  }
-
-
 }

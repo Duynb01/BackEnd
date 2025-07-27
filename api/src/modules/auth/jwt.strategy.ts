@@ -15,10 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy){
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'secretKey'
+      secretOrKey: process.env.ACCESS_TOKEN_SECRET || 'secretKey'
     });
   }
-  async validate(payload){
+  async validate(payload: any){
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
       include: { role: true },

@@ -7,7 +7,6 @@ import { VouchersService } from '../vouchers/vouchers.service';
 import { PaymentsService } from '../payments/payments.service';
 import { generateOrderCode } from '../../utils/generate-code';
 import { ProductsService } from '../products/products.service';
-import { OrderItem } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -15,7 +14,7 @@ export class OrdersService {
               private readonly paymentService: PaymentsService,
               private readonly cartsService: CartsService,
               private readonly productsService: ProductsService,
-              private readonly vouchersService: VouchersService) {}
+              private readonly vouchersService: VouchersService) {} // use voucher
 
   async create(userId: string, createOrderDto: CreateOrderDto) {
     const code = generateOrderCode();
