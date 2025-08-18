@@ -46,7 +46,7 @@ export class VouchersController {
 
   @Get(':code')
   @UseGuards(JwtAuthGuard)
-  async findOne(@Param('code') code: string) {
+  async validVoucherCode(@Param('code') code: string) {
     return this.vouchersService.findValidByCode(code)
   }
 

@@ -28,8 +28,8 @@ export class VouchersService {
     }
   }
 
-  findAll() {
-    return this.prisma.voucher.findMany({
+  async findAll() {
+    const vouchers = await this.prisma.voucher.findMany({
       select: {
         id: true,
         name: true,
@@ -42,8 +42,10 @@ export class VouchersService {
       },
       orderBy:{
         expiryDate: 'asc'
-      }
+      },
     })
+    await Promise.all(vouchers.map((voucher) => this.checkDate(voucher.id)));
+    return vouchers;
   }
 
   async findValidByCode(code: string) {
@@ -135,6 +137,7 @@ export class VouchersService {
       where: { id },
     });
   }
+
   async status (id: string, updateDto: UpdateVoucherDto){
     const voucher = await this.prisma.voucher.findUnique({
       where: {id},
@@ -152,4 +155,24 @@ export class VouchersService {
     }
   }
 
+  private async checkDate(id: string): Promise<void> {
+    const voucher = await this.prisma.voucher.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        expiryDate: true,
+        active: true
+      },
+    });
+    if (!voucher) {
+      throw new NotFoundException('Voucher không tồn tại');
+    }
+    const isExpired = voucher.expiryDate <= new Date()
+    if (isExpired && voucher.active) {
+      await this.prisma.voucher.update({
+        where: { id },
+        data: { active: false },
+      });
+    }
+  }
 }

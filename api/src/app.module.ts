@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { VnpayModule } from 'nestjs-vnpay';
+import { HashAlgorithm, ignoreLogger } from 'vnpay';
+
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
@@ -9,8 +12,21 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { VouchersModule } from './modules/vouchers/vouchers.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import * as process from 'node:process';
+import { UploadsModule } from './modules/uploads/uploads.module';
+
 
 @Module({
-  imports: [AuthModule, PrismaModule, ProductsModule, CartsModule, UsersModule, CategoriesModule, OrdersModule, ReviewsModule, VouchersModule, PaymentsModule],
+  imports: [AuthModule, PrismaModule, ProductsModule, CartsModule, UsersModule, CategoriesModule, OrdersModule, ReviewsModule, VouchersModule, PaymentsModule, UploadsModule,
+  VnpayModule.register({
+    tmnCode: process.env.VNP_TMNCODE!,
+    secureSecret: process.env.VNP_HASHSECRET!,
+    vnpayHost: 'https://sandbox.vnpayment.vn',
+    testMode: true,
+    hashAlgorithm: HashAlgorithm.SHA512,
+    enableLog: true,
+    loggerFn: ignoreLogger,
+  })
+  ],
 })
 export class AppModule {}

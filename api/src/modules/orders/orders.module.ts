@@ -7,8 +7,9 @@ import { PaymentsModule } from '../payments/payments.module';
 import { ProductsModule } from '../products/products.module';
 
 @Module({
-  imports: [CartsModule, VouchersModule, PaymentsModule, ProductsModule],
+  imports: [CartsModule, VouchersModule, ProductsModule],
   controllers: [OrdersController],
   providers: [OrdersService],
+  exports: [OrdersService]
 })
 export class OrdersModule {}

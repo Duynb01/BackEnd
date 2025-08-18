@@ -21,5 +21,9 @@ export class CreateProductDto {
 
   @ApiProperty()
   @IsString()
-  categoryId: number;
+  category: string;
+
+  @ApiProperty()
+  @IsString()
+  url: string
 }

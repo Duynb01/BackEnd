@@ -39,7 +39,7 @@ export class UsersService {
     })
   }
 
-  async findOne(id: string) {
+  async findOne(id: string){
     const user = await this.prisma.user.findUnique({
       where: {id},
       select: {

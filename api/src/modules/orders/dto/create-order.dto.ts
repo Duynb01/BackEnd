@@ -12,7 +12,7 @@ import {PaymentMethod} from '../../payments/dto/create-payment.dto';
 
 enum OrderStatus{
   PROCESSING = 'processing',
-  SHIPPED = 'shipped',
+  SHIPPING = 'shipping',
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
 }
@@ -42,9 +42,6 @@ class ShippingInfoDto{
 
   @IsString()
   @IsNotEmpty()
-  email: string;
-
-  @IsString()
   phone: string;
 
   @IsString()

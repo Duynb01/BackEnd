@@ -22,19 +22,19 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lấy thông tin người dùng hiện tại' })
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({summary: 'Lấy thông tin người dùng'})
   @ApiResponse({ status: 200, description: 'Thông tin người dùng.' })
-  getProfile(@Request() request) {
-    return this.usersService.findOne(request.user.id);
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
   }
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Cập nhật thông tin cá nhân' })
   @ApiResponse({ status: 200, description: 'Cập nhật thành công.' })
-  updateProfile(@Request() request, @Body() updateUserDto: UpdateUserDto) {
+  updateProfile(@Request() request: any, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(request.user.id, updateUserDto);
   }
 
