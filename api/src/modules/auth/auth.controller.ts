@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Res, Req, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Res, Req, Get, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import {Response, Request} from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -64,6 +66,23 @@ export class AuthController {
     const {access_token, refresh_token} = await this.authService.refresh(refreshToken, userAgent, ipAddress);
     await this.saveToken(response, access_token, refresh_token );
     return { message: 'Successful' };
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@Body() dto: ForgotPasswordDto){
+    return this.authService.forgotPassword(dto.email)
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @Post('verify-reset-token')
+  async verifyResetToken(@Body() token: string, @Body() email: string ){
+    return this.authService.verifyResetToken(token, email)
   }
 
   private async saveToken(res: Response, accessToken:string, refreshToken: string){

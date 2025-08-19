@@ -14,10 +14,12 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import * as process from 'node:process';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { MailModule } from './modules/mail/mail.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 
 @Module({
-  imports: [AuthModule, PrismaModule, ProductsModule, CartsModule, UsersModule, CategoriesModule, OrdersModule, ReviewsModule, VouchersModule, PaymentsModule, UploadsModule,
+  imports: [AuthModule, MailModule, AnalyticsModule,PrismaModule, ProductsModule, CartsModule, UsersModule, CategoriesModule, OrdersModule, ReviewsModule, VouchersModule, PaymentsModule, UploadsModule,
   VnpayModule.register({
     tmnCode: process.env.VNP_TMNCODE!,
     secureSecret: process.env.VNP_HASHSECRET!,

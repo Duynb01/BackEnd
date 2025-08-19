@@ -3,7 +3,7 @@ import { CreateOrderDto, OrderItemDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CartsService } from '../carts/carts.service';
-import { VouchersService } from '../vouchers/vouchers.service';
+// import { VouchersService } from '../vouchers/vouchers.service';
 import { generateOrderCode } from '../../utils/generate-code';
 import { ProductsService } from '../products/products.service';
 
@@ -12,7 +12,8 @@ export class OrdersService {
   constructor(private readonly prisma: PrismaService,
               private readonly cartsService: CartsService,
               private readonly productsService: ProductsService,
-              private readonly vouchersService: VouchersService) {} // use voucher
+              // private readonly vouchersService: VouchersService
+  ) {}
 
   async create(userId: string, createOrderDto: CreateOrderDto) {
     const code = generateOrderCode();
@@ -218,6 +219,4 @@ export class OrdersService {
       data: { status: updateOrderDto.status }
     });
   }
-
-
 }
