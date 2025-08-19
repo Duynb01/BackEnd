@@ -114,7 +114,6 @@ model Product {
   price       Float
   stock       Int
   categoryId  Int
-  connectId   Int     @default(autoincrement())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -133,7 +132,6 @@ model ProductImage {
   id        String @id @default(uuid()) @db.Uuid
   url       String
   productId String? @db.Uuid
-  connectId   Int     @default(autoincrement())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

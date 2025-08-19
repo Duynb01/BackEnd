@@ -10,8 +10,6 @@ services:
       - ./api:/app
     ports:
       - "4000:3000"
-    depends_on:
-      - db
 
   db:
     container_name: web-db

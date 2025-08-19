@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client'
+import * as bcrypt from "bcrypt";
+
 const prisma = new PrismaClient()
 
 async function main() {
@@ -25,11 +27,33 @@ async function main() {
     ],
     skipDuplicates: true,
   })
+
+  // Tìm role ADMIN
+  const adminRole = await prisma.role.findUnique({
+    where: { name: "ADMIN" },
+  });
+  // Seed admin user (chỉ tạo nếu chưa có)
+  const adminEmail = "bduy0001@gmail.com";
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (!existingAdmin && adminRole) {
+    const hashedPassword = await bcrypt.hash("123456789vd", 10);
+
+    await prisma.user.create({
+      data: {
+        name: "Admin",
+        email: adminEmail,
+        password: hashedPassword,
+        roleId: adminRole.id,
+      },
+    });
+  }
 }
 
 main()
   .then(async () => {
-    console.log('✅ Seed done!')
     await prisma.$disconnect()
   })
   .catch(async (e) => {
