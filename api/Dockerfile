@@ -28,6 +28,7 @@ RUN npm install
 COPY . .
 
 # Build NestJS project
+RUN npx prisma generate
 RUN npm run build
 
 # -------------------------
@@ -41,7 +42,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Cài chỉ production dependencies
-RUN npm install --production
+RUN npm install --omit=dev
 
 # Copy dist từ stage build
 COPY --from=builder /app/dist ./dist
